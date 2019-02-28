@@ -41,6 +41,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -98,13 +99,17 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.bt_cancel)
     Button bt_cancel;
 
+
+    @BindView(R.id.bt_change_state)
+    Button bt_change_state;
+
     @BindView(R.id.ll_after_record)
     LinearLayout ll_after_record;
 
     String path;
     String returnedURI;
     String old_text = "";
-    String statesArray[]=null;
+    String statename="";
     SharedPreferences sharedPreferences;
     long time_started = 0;
     long time_started_return = 0;
@@ -132,17 +137,28 @@ public class MainActivity extends AppCompatActivity {
                     vv_video_learn.setVisibility(View.VISIBLE);
                     vv_video_learn.start();
                     time_started = System.currentTimeMillis();
+                    sp_words.setVisibility(View.VISIBLE);
+                    sp_ip_address.setVisibility(View.VISIBLE);
+                    stateName.setVisibility(View.GONE);
+                    bt_send.setText("Proceed");
+                    bt_cancel.setText("Cancel");
+                    bt_change_state.setVisibility(View.GONE);
+                    play_video(sp_words.getSelectedItem().toString());
+
                 } else if ( checkedId==rb_practice.getId()) {
+                    bt_send.setText("Accept");
+                    bt_cancel.setText("Reject");
                     Toast.makeText(getApplicationContext(),"Practice",Toast.LENGTH_SHORT).show();
                     vv_video_learn.setVisibility(View.GONE);
                     sp_words.setVisibility(View.GONE);
                     sp_ip_address.setVisibility(View.GONE);
                     stateName.setVisibility(View.VISIBLE);
-                    statesArray = getResources().getStringArray(R.array.spinner_words);
-                    Log.d("sa",""+statesArray[0]);
-                    int randomNumber = new Random().nextInt(25);
-                    stateName.setText(statesArray[randomNumber]);
+                    bt_change_state.setVisibility((View.VISIBLE));
 
+//                    Log.d("sa",""+statesArray[0]);
+                    changeStateName();
+//                    set the video path
+                    Log.d("state",""+statename);
 
                 }
             }
@@ -232,6 +248,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void play_video(String text) {
         old_text = text;
+        Log.d("Video" ," in  video "+text);
         if(text.equals("Alaska")) {
 
              path = "android.resource://" + getPackageName() + "/" + R.raw.alaska;
@@ -356,7 +373,11 @@ public class MainActivity extends AppCompatActivity {
              time_started = System.currentTimeMillis() - time_started;
 
              Intent t = new Intent(this,VideoActivity.class);
-             t.putExtra(INTENT_WORD,sp_words.getSelectedItem().toString());
+             if(rb_learn.isChecked() || rb_learn.isSelected())
+                t.putExtra(INTENT_WORD,sp_words.getSelectedItem().toString());
+             else{
+                 t.putExtra(INTENT_WORD,statename);
+             }
              t.putExtra(INTENT_TIME_WATCHED, time_started);
              startActivityForResult(t,9999);
 
@@ -393,6 +414,11 @@ public class MainActivity extends AppCompatActivity {
         if(rb_learn.isSelected()) {
             vv_video_learn.setVisibility(View.VISIBLE);
         }
+        else {
+            vv_video_learn.setVisibility(View.GONE);
+            bt_change_state.setVisibility(View.VISIBLE);
+
+        }
         bt_record.setVisibility(View.VISIBLE);
         bt_send.setVisibility(View.GONE);
         bt_cancel.setVisibility(View.GONE);
@@ -410,6 +436,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
+    bt_change_state.setVisibility(View.GONE);
     Log.e("OnActivityresult",requestCode+" "+resultCode);
         if(requestCode==2000 ) {
             //from video activity
@@ -425,9 +452,12 @@ public class MainActivity extends AppCompatActivity {
 
 
         }
+        Log.d("twoVideos","IN two videos");
+
         if(requestCode==9999 && resultCode == 8888) {
             if(intent.hasExtra(INTENT_URI) && intent.hasExtra(INTENT_TIME_WATCHED_VIDEO)) {
                 returnedURI = intent.getStringExtra(INTENT_URI);
+                Log.d("intentURI","in 1st"+returnedURI);
                 time_started_return = intent.getLongExtra(INTENT_TIME_WATCHED_VIDEO,0);
 
                 vv_record.setVisibility(View.VISIBLE);
@@ -436,17 +466,37 @@ public class MainActivity extends AppCompatActivity {
                 bt_cancel.setVisibility(View.VISIBLE);
                 sp_words.setEnabled(false);
                 rb_learn.setEnabled(false);
-                //rb_practice.setEnabled(false);
-                vv_record.setVideoURI(Uri.parse(returnedURI));
-                int try_number = sharedPreferences.getInt("record_"+sp_words.getSelectedItem().toString(),0);
-                try_number++;
-                String toAdd  = sp_words.getSelectedItem().toString()+"_"+try_number+"_"+time_started_return + "";
-                HashSet<String> set = (HashSet<String>) sharedPreferences.getStringSet("RECORDED",new HashSet<String>());
-                set.add(toAdd);
-                sharedPreferences.edit().putStringSet("RECORDED",set).apply();
-                sharedPreferences.edit().putInt("record_"+sp_words.getSelectedItem().toString(), try_number).apply();
+                Log.d("selected",""+rb_practice.isSelected());
+
+                if(rb_practice.isChecked()){
+                    Log.d("twoVideos","IN two videos");
+                    vv_video_learn.setVisibility(View.VISIBLE);
+
+                }
+
+                time_started = System.currentTimeMillis();
+                vv_video_learn.start();
+
+                    //rb_practice.setEnabled(false);
+                    Log.d("setURI",""+returnedURI);
+//                    recorded URI
+//                    vv_video_learn.setVideoURI(Uri.parse(returnedURI));
+                    vv_record.setVideoURI(Uri.parse(returnedURI));
+
+                    if(rb_learn.isChecked() || rb_learn.isSelected()) {
+                        int try_number = sharedPreferences.getInt("record_" + sp_words.getSelectedItem().toString(), 0);
+                        try_number++;
+//                Log.d("sharedPref",""+try_number);
+                        String toAdd = sp_words.getSelectedItem().toString() + "_" + try_number + "_" + time_started_return + "";
+                        HashSet<String> set = (HashSet<String>) sharedPreferences.getStringSet("RECORDED", new HashSet<String>());
+                        set.add(toAdd);
+                        sharedPreferences.edit().putStringSet("RECORDED", set).apply();
+                        sharedPreferences.edit().putInt("record_" + sp_words.getSelectedItem().toString(), try_number).apply();
+                    }
 
                 vv_video_learn.start();
+
+
             }
 
         }
@@ -457,6 +507,7 @@ public class MainActivity extends AppCompatActivity {
                 //create folder
                 if(intent.hasExtra(INTENT_URI) && intent.hasExtra(INTENT_TIME_WATCHED_VIDEO)) {
                     returnedURI = intent.getStringExtra(INTENT_URI);
+                    Log.d("intentURI","in 2nd"+returnedURI);
                     time_started_return = intent.getLongExtra(INTENT_TIME_WATCHED_VIDEO,0);
                     File f = new File(returnedURI);
                     f.delete();
@@ -505,6 +556,16 @@ public class MainActivity extends AppCompatActivity {
             rb_learn.setEnabled(false);
             rb_practice.setEnabled(false);
         }*/
+    }
+
+    @OnClick(R.id.bt_change_state)
+    public void changeStateName(){
+
+        String[] statesArray = getResources().getStringArray(R.array.spinner_words);
+        int randomNumber = new Random().nextInt(25);
+        statename = statesArray[randomNumber];
+        stateName.setText(statename);
+        play_video(statename);
     }
 
     //Menu Item for logging out

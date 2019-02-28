@@ -70,6 +70,11 @@
             android:layout_width="match_parent"
             android:visibility="gone"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            android:textAlignment="center"
             android:text="TextView" />
 
         <VideoView
@@ -79,6 +84,17 @@
             android:layout_gravity="center"
             android:layout_margin="10dp"
             android:layout_marginTop="10dp" />
+
+
+        <Button
+            android:id="@+id/bt_change_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="30dp"
+            android:visibility="gone"
+
+            android:text="Change State" />
 
         <VideoView
             android:id="@+id/vv_record"

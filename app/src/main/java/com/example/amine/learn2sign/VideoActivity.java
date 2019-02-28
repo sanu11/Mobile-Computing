@@ -64,6 +64,7 @@ public class VideoActivity extends Activity implements SurfaceHolder.Callback {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
         if(getIntent().hasExtra(INTENT_WORD)) {
             word = getIntent().getStringExtra(INTENT_WORD);
+            Log.d("State","State name in video activity " + word);
         }
         if(getIntent().hasExtra(INTENT_TIME_WATCHED)) {
             time_watched = getIntent().getLongExtra(INTENT_TIME_WATCHED,0);
@@ -163,6 +164,8 @@ public class VideoActivity extends Activity implements SurfaceHolder.Callback {
         String format = s.format(new Date());
         File file = new File(Environment.getExternalStorageDirectory().getPath() + "/Learn2Sign/"
                 + sharedPreferences.getString(INTENT_ID,"0000")+"_"+word+"_0_"+format  + ".mp4");
+
+
         //just to be safe
         while(file.exists()) {
             i++;
@@ -175,7 +178,12 @@ public class VideoActivity extends Activity implements SurfaceHolder.Callback {
             Log.e("file path",file.getPath());
             returnfile = file.getPath();
         }
+        Log.d("return",returnfile+"");
+        returnIntent.putExtra(INTENT_URI,returnfile);
+        returnIntent.putExtra(INTENT_TIME_WATCHED_VIDEO , time_watched);
+        activity.setResult(8888,returnIntent);
 
+        Log.d("return2",""+returnfile);
 
         mMediaRecorder.setOutputFile(file.getPath());
         // No limit. Check the space on disk!
