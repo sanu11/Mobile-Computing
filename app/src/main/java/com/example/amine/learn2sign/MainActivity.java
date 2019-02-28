@@ -96,9 +96,12 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.bt_send)
     Button bt_send;
 
+    @BindView(R.id.bt_accept)
+    Button bt_accept;
+
+
     @BindView(R.id.bt_cancel)
     Button bt_cancel;
-
 
     @BindView(R.id.bt_change_state)
     Button bt_change_state;
@@ -128,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
         rb_learn.setChecked(true);
         bt_cancel.setVisibility(View.GONE);
         bt_send.setVisibility(View.GONE);
+        bt_accept.setVisibility(View.GONE);
         rg_practice_learn.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
         {
             @Override
@@ -145,8 +149,9 @@ public class MainActivity extends AppCompatActivity {
                     bt_change_state.setVisibility(View.GONE);
                     play_video(sp_words.getSelectedItem().toString());
 
+
                 } else if ( checkedId==rb_practice.getId()) {
-                    bt_send.setText("Accept");
+
                     bt_cancel.setText("Reject");
                     Toast.makeText(getApplicationContext(),"Practice",Toast.LENGTH_SHORT).show();
                     vv_video_learn.setVisibility(View.GONE);
@@ -403,16 +408,31 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.bt_send)
     public void sendToServer() {
+
         Toast.makeText(this,"Send to Server",Toast.LENGTH_SHORT).show();
         Intent t = new Intent(this,UploadActivity.class);
         startActivityForResult(t,2000);
+
+
+    }
+
+    @OnClick(R.id.bt_accept)
+    public void uploadVideo()
+    {
+        String server_ip = getSharedPreferences(this.getPackageName(), Context.MODE_PRIVATE).getString(INTENT_SERVER_ADDRESS,"10.211.17.171");
+        Log.d("msg",server_ip);
+
+
     }
 
     @OnClick(R.id.bt_cancel)
     public void cancel() {
         vv_record.setVisibility(View.GONE);
-        if(rb_learn.isSelected()) {
+        if(rb_learn.isSelected() || rb_learn.isChecked()) {
             vv_video_learn.setVisibility(View.VISIBLE);
+            bt_change_state.setVisibility(View.GONE);
+            bt_accept.setVisibility(View.GONE);
+
         }
         else {
             vv_video_learn.setVisibility(View.GONE);
@@ -471,6 +491,8 @@ public class MainActivity extends AppCompatActivity {
                 if(rb_practice.isChecked()){
                     Log.d("twoVideos","IN two videos");
                     vv_video_learn.setVisibility(View.VISIBLE);
+                    bt_send.setVisibility(View.GONE);
+                    bt_accept.setVisibility(View.VISIBLE);
 
                 }
 
@@ -479,14 +501,11 @@ public class MainActivity extends AppCompatActivity {
 
                     //rb_practice.setEnabled(false);
                     Log.d("setURI",""+returnedURI);
-//                    recorded URI
-//                    vv_video_learn.setVideoURI(Uri.parse(returnedURI));
                     vv_record.setVideoURI(Uri.parse(returnedURI));
 
                     if(rb_learn.isChecked() || rb_learn.isSelected()) {
                         int try_number = sharedPreferences.getInt("record_" + sp_words.getSelectedItem().toString(), 0);
                         try_number++;
-//                Log.d("sharedPref",""+try_number);
                         String toAdd = sp_words.getSelectedItem().toString() + "_" + try_number + "_" + time_started_return + "";
                         HashSet<String> set = (HashSet<String>) sharedPreferences.getStringSet("RECORDED", new HashSet<String>());
                         set.add(toAdd);
