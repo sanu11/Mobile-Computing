@@ -34,6 +34,9 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.facebook.stetho.Stetho;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -50,6 +53,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.internal.Utils;
+import cz.msebera.android.httpclient.Header;
 
 import static android.provider.MediaStore.EXTRA_DURATION_LIMIT;
 import static android.provider.MediaStore.EXTRA_MEDIA_TITLE;
@@ -155,10 +159,18 @@ public class MainActivity extends AppCompatActivity {
                     bt_cancel.setText("Reject");
                     Toast.makeText(getApplicationContext(),"Practice",Toast.LENGTH_SHORT).show();
                     vv_video_learn.setVisibility(View.GONE);
+                    bt_accept.setVisibility(View.GONE);
+                    bt_cancel.setVisibility(View.GONE);
+                    vv_record.setVisibility(View.GONE);
                     sp_words.setVisibility(View.GONE);
+                    bt_record.setVisibility(View.VISIBLE);
+                    rb_learn.setEnabled(true);
+//                    rb_practice.setChecked(true);
+//                    rb_practice.setSelected(t);
                     sp_ip_address.setVisibility(View.GONE);
                     stateName.setVisibility(View.VISIBLE);
                     bt_change_state.setVisibility((View.VISIBLE));
+                    rb_practice.setSelected(true);
 
 //                    Log.d("sa",""+statesArray[0]);
                     changeStateName();
@@ -420,19 +432,67 @@ public class MainActivity extends AppCompatActivity {
     public void uploadVideo()
     {
         String server_ip = getSharedPreferences(this.getPackageName(), Context.MODE_PRIVATE).getString(INTENT_SERVER_ADDRESS,"10.211.17.171");
-        Log.d("msg",server_ip);
+        String id = getSharedPreferences(getPackageName(), Context.MODE_PRIVATE).getString(INTENT_ID,"00000000");
+        Log.d("uploadVideo",id);
+        Log.d("uri",returnedURI);
+        File file = new File(returnedURI);
+        RequestParams params = new RequestParams();
+        try {
+            params.put("uploaded_file", file);
+        }
+        catch (Exception e){
+            Log.e("errorInFile",""+e.getMessage());
+        }
+//        Log.d("singleURI",""+returnedURI);
+        params.put("id",id);
+        params.put("checked",1);
 
+//        Log.d("uploadFile",""+returnedURI);
+        AsyncHttpClient client = new AsyncHttpClient();
+
+        client.post("http://"+server_ip +"/upload_video.php", params, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] bytes) {
+                // handle success response
+                Log.e("msg success", statusCode + "");
+                if (statusCode == 200) {
+                    Toast.makeText(MainActivity.this, "Uploaded Successfully!", Toast.LENGTH_SHORT).show();
+                }
+                rg_practice_learn.clearCheck();
+                rb_practice.setChecked(true);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] bytes, Throwable throwable) {
+                // handle failure response
+                Log.e("msg fail",statusCode+"");
+                StackTraceElement[] temp =throwable.getStackTrace();
+                int n = temp.length;
+                for(int i=0;i<n;i++)
+                Log.d("onFailure : ", "Headers = " + temp[i].toString());
+
+                Toast.makeText(MainActivity.this, "Something Went Wrong", Toast.LENGTH_SHORT).show();
+
+            }
+
+
+            @Override
+            public void onFinish() {
+                Log.e("msg on finish", "finished");
+                super.onFinish();
+            }
+        });
 
     }
 
     @OnClick(R.id.bt_cancel)
     public void cancel() {
         vv_record.setVisibility(View.GONE);
+        bt_accept.setVisibility(View.GONE);
+        bt_cancel.setVisibility(View.GONE);
         if(rb_learn.isSelected() || rb_learn.isChecked()) {
             vv_video_learn.setVisibility(View.VISIBLE);
             bt_change_state.setVisibility(View.GONE);
-            bt_accept.setVisibility(View.GONE);
-
         }
         else {
             vv_video_learn.setVisibility(View.GONE);

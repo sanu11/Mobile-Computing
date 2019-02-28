@@ -34,6 +34,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -86,12 +87,14 @@ public class UploadActivity extends AppCompatActivity {
     }
     public boolean onOptionsItemSelected(MenuItem item) {
         String id = getSharedPreferences(getPackageName(), Context.MODE_PRIVATE).getString(INTENT_ID,"00000000");
-
+        Log.d("onVideoSelect",id);
         //respond to menu item selection
         switch (item.getItemId()) {
             case R.id.menu_upload:
                 //upload to Server now
                 final File[] toUpload = uploadListAdapter.getVideos();
+
+                Log.d("FileList",""+toUpload[0]);
                 final boolean[] checked = uploadListAdapter.getChecked();
                 String server_ip = getSharedPreferences(this.getPackageName(), Context.MODE_PRIVATE).getString(INTENT_SERVER_ADDRESS,"10.211.17.171");
                 Log.d("msg",server_ip);
@@ -112,6 +115,7 @@ public class UploadActivity extends AppCompatActivity {
                         // send request
                         AsyncHttpClient client = new AsyncHttpClient();
                     final int finalI = i;
+//                    for(Map.Entry e : params.get)
                     client.post("http://"+server_ip +"/upload_video.php", params, new AsyncHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Header[] headers, byte[] bytes) {
