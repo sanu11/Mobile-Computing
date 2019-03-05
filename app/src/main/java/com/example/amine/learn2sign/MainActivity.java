@@ -155,7 +155,8 @@ public class MainActivity extends AppCompatActivity {
 
 
                 } else if ( checkedId==rb_practice.getId()) {
-
+                    checkVideoCount();
+                    // need to get the result of called function above
                     bt_cancel.setText("Reject");
                     Toast.makeText(getApplicationContext(),"Practice",Toast.LENGTH_SHORT).show();
                     vv_video_learn.setVisibility(View.GONE);
@@ -645,6 +646,38 @@ public class MainActivity extends AppCompatActivity {
         statename = statesArray[randomNumber];
         stateName.setText(statename);
         play_video(statename);
+    }
+
+    public void checkVideoCount(){
+
+        Log.d("MainActivity","checks video count");
+        String id = getSharedPreferences(getPackageName(), Context.MODE_PRIVATE).getString(INTENT_ID,"00000000");
+        String server_ip = getSharedPreferences(this.getPackageName(), Context.MODE_PRIVATE).getString(INTENT_SERVER_ADDRESS,"10.211.17.171");
+        AsyncHttpClient client_logs = new AsyncHttpClient();
+        RequestParams params = new RequestParams();
+        params.put("id",id);
+        client_logs.post("http://"+server_ip+"/check_video_count.php", params, new AsyncHttpResponseHandler(){
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                if (statusCode == 200) {
+
+                    String responseBodyString = new String(responseBody);
+                    Integer video_count = Integer.parseInt(responseBodyString.trim());
+                    Log.d("Video Count", "" + video_count);
+                    if(video_count > 75) {
+
+                    }
+                    else {
+                        Toast.makeText(MainActivity.this, "Video Count is not 75!", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                Toast.makeText(MainActivity.this, "Cannot count videos", Toast.LENGTH_SHORT).show();
+
+            }
+        });
     }
 
     //Menu Item for logging out
