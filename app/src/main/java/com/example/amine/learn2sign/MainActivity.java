@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
     long time_started = 0;
     long time_started_return = 0;
     Activity mainActivity;
-
+    final Context context = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,28 +156,6 @@ public class MainActivity extends AppCompatActivity {
 
                 } else if ( checkedId==rb_practice.getId()) {
                     checkVideoCount();
-                    // need to get the result of called function above
-                    bt_cancel.setText("Reject");
-                    Toast.makeText(getApplicationContext(),"Practice",Toast.LENGTH_SHORT).show();
-                    vv_video_learn.setVisibility(View.GONE);
-                    bt_accept.setVisibility(View.GONE);
-                    bt_cancel.setVisibility(View.GONE);
-                    vv_record.setVisibility(View.GONE);
-                    sp_words.setVisibility(View.GONE);
-                    bt_record.setVisibility(View.VISIBLE);
-                    rb_learn.setEnabled(true);
-//                    rb_practice.setChecked(true);
-//                    rb_practice.setSelected(t);
-                    sp_ip_address.setVisibility(View.GONE);
-                    stateName.setVisibility(View.VISIBLE);
-                    bt_change_state.setVisibility((View.VISIBLE));
-                    rb_practice.setSelected(true);
-
-//                    Log.d("sa",""+statesArray[0]);
-                    changeStateName();
-//                    set the video path
-                    Log.d("state",""+statename);
-
                 }
             }
         });
@@ -264,6 +242,29 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void enter_practice_mode() {
+        bt_cancel.setText("Reject");
+        Toast.makeText(getApplicationContext(),"Practice",Toast.LENGTH_SHORT).show();
+        vv_video_learn.setVisibility(View.GONE);
+        bt_accept.setVisibility(View.GONE);
+        bt_cancel.setVisibility(View.GONE);
+        vv_record.setVisibility(View.GONE);
+        sp_words.setVisibility(View.GONE);
+        bt_record.setVisibility(View.VISIBLE);
+        rb_learn.setEnabled(true);
+//                    rb_practice.setChecked(true);
+//                    rb_practice.setSelected(t);
+        sp_ip_address.setVisibility(View.GONE);
+        stateName.setVisibility(View.VISIBLE);
+        bt_change_state.setVisibility((View.VISIBLE));
+        rb_practice.setSelected(true);
+
+//                    Log.d("sa",""+statesArray[0]);
+        changeStateName();
+//                    set the video path
+        Log.d("state",""+statename);
+
+    }
     public void play_video(String text) {
         old_text = text;
         Log.d("Video" ," in  video "+text);
@@ -664,11 +665,27 @@ public class MainActivity extends AppCompatActivity {
                     String responseBodyString = new String(responseBody);
                     Integer video_count = Integer.parseInt(responseBodyString.trim());
                     Log.d("Video Count", "" + video_count);
-                    if(video_count > 75) {
-
+                    if(video_count >= 75) {
+                        enter_practice_mode();
                     }
                     else {
-                        Toast.makeText(MainActivity.this, "Video Count is not 75!", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(MainActivity.this, "Video Count is not 75!", Toast.LENGTH_SHORT).show();
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                                context);
+
+                        alertDialogBuilder.setTitle("Warning!!");
+
+                        alertDialogBuilder
+                                .setMessage("Video count less than 75. Return to learn mode to continue learning!!")
+                                .setNegativeButton("Continue",new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+
+                        AlertDialog alertDialog = alertDialogBuilder.create();
+
+                        alertDialog.show();
                     }
                 }
             }
