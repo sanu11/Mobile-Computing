@@ -64,9 +64,11 @@ import static com.example.amine.learn2sign.LoginActivity.INTENT_TIME_WATCHED;
 import static com.example.amine.learn2sign.LoginActivity.INTENT_TIME_WATCHED_VIDEO;
 import static com.example.amine.learn2sign.LoginActivity.INTENT_URI;
 import static com.example.amine.learn2sign.LoginActivity.INTENT_WORD;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
+    String practice_logs = "";
 
     static final int REQUEST_VIDEO_CAPTURE = 1;
 
@@ -426,8 +428,6 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this,"Send to Server",Toast.LENGTH_SHORT).show();
         Intent t = new Intent(this,UploadActivity.class);
         startActivityForResult(t,2000);
-
-
     }
 
     @OnClick(R.id.bt_accept)
@@ -499,7 +499,9 @@ public class MainActivity extends AppCompatActivity {
         else {
             vv_video_learn.setVisibility(View.GONE);
             bt_change_state.setVisibility(View.VISIBLE);
-
+            Long tsLong = System.currentTimeMillis()/1000;
+            String ts = tsLong.toString();
+            practice_logs = practice_logs + "\n" + ts + ": Rejected the practiced video" ;
         }
         bt_record.setVisibility(View.VISIBLE);
         bt_send.setVisibility(View.GONE);
@@ -642,6 +644,9 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.bt_change_state)
     public void changeStateName(){
 
+        Long tsLong = System.currentTimeMillis()/1000;
+        String ts = tsLong.toString();
+        practice_logs = practice_logs + "\n" + ts + ": Changed State name";
         String[] statesArray = getResources().getStringArray(R.array.spinner_words);
         int randomNumber = new Random().nextInt(25);
         statename = statesArray[randomNumber];
