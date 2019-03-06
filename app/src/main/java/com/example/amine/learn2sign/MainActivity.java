@@ -502,6 +502,7 @@ public class MainActivity extends AppCompatActivity {
             Long tsLong = System.currentTimeMillis()/1000;
             String ts = tsLong.toString();
             practice_logs = practice_logs + "\n" + ts + ": Rejected the practiced video" ;
+            Log.d("log",ts + ": Rejected the practiced video");
         }
         bt_record.setVisibility(View.VISIBLE);
         bt_send.setVisibility(View.GONE);
@@ -643,15 +644,15 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.bt_change_state)
     public void changeStateName(){
-
-        Long tsLong = System.currentTimeMillis()/1000;
-        String ts = tsLong.toString();
-        practice_logs = practice_logs + "\n" + ts + ": Changed State name";
         String[] statesArray = getResources().getStringArray(R.array.spinner_words);
         int randomNumber = new Random().nextInt(25);
         statename = statesArray[randomNumber];
         stateName.setText(statename);
         play_video(statename);
+        Long tsLong = System.currentTimeMillis()/1000;
+        String ts = tsLong.toString();
+        practice_logs = practice_logs + "\n" + ts + ": Changed State name";
+        Log.d("log",ts + ": Changed State name to " + statename);
     }
 
     public void checkVideoCount(){
