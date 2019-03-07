@@ -245,6 +245,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void enter_practice_mode() {
+        Log.d("log", "Entered practice mode");
         bt_cancel.setText("Reject");
         Toast.makeText(getApplicationContext(),"Practice",Toast.LENGTH_SHORT).show();
         vv_video_learn.setVisibility(View.GONE);
